@@ -1,0 +1,1 @@
+Java is a 3rd Generation Object Oriented programming Language, developed by James Gosling in the year 1995. It was initially codenamed as Green and hypothetically called Oak named after the Oak tree outside Gosling’s house.It is case sensitive and has a unique two step translation process that includes both Compilation and Interpretation which makes Java Platform independent.
