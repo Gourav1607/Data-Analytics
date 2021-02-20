@@ -5,6 +5,10 @@
 # Gourav Siddhad
 # 25-Jan-2019
 
+import nltk
+from nltk.corpus import wordnet as wn
+import random
+import nltk as nl
 input_str = 'Statistics is one of the main Building Block of Data Science.'
 lower = input_str.lower()
 print(lower)
@@ -12,22 +16,19 @@ print(lower)
 upper = input_str.upper()
 print(upper)
 
-import nltk as nl
 
-#sentense tokenization
-import nltk as nl
-import random
+# sentense tokenization
 
 example_text = 'a real movie , about real people. Movie gives us a rare glimpse into a culture most of us don\'t know .'
 print(nl.tokenize.sent_tokenize(example_text))
 
-#word tokenization
+# word tokenization
 example = 'Movie gives us a rare glimpse into a culture most of us don\'t know .'
 
 tokenized_words = nl.tokenize.word_tokenize(example)
 print(tokenized_words)
 
-#pos tagging
+# pos tagging
 tagged_words = nl.tag.pos_tag(tokenized_words)
 print(tagged_words)
 
@@ -45,13 +46,13 @@ print(stop_words)
 print('\n filtered data after stop word removal \n')
 print(filtered_words)
 
-#Chunking
+# Chunking
 chunked_data = nl.chunk.ne_chunk(tagged_words)
 print(chunked_data)
 chunked_data.draw()
 
-#punctuation mark removal
-p = [',','?','.']
+# punctuation mark removal
+p = [',', '?', '.']
 word_tokens = filtered_words
 
 filtered2 = []
@@ -66,30 +67,33 @@ print(filtered2)
 # stemming
 
 ps = nl.stem.PorterStemmer()
-set1 =['Movie', 'gives', 'us', 'rare', 'glimpse', 'culture', 'us', "n't", 'know']
+set1 = ['Movie', 'gives', 'us', 'rare',
+        'glimpse', 'culture', 'us', "n't", 'know']
 
 for w in set1:
     print(ps.stem(w))
 
-set2 =[ "python","pythoner","pythoning","pythoned"]
-set2 =[ "banks","banking","bank"]
+set2 = ["python", "pythoner", "pythoning", "pythoned"]
+set2 = ["banks", "banking", "bank"]
 
 print('-------------------')
 for w in set2:
     print(ps.stem(w))
 
-#data set loading
+# data set loading
 positive = open('rt-polarity-pos.txt')
 negative = open('rt-polarity-neg.txt')
 
-i=0
-while i<5 :
+i = 0
+while i < 5:
     print(negative.readline())
-    i+=1
+    i += 1
 
-#print(positive.readlines())
+# print(positive.readlines())
 
-#preprocessing
+# preprocessing
+
+
 def remove_stop_words(w_token):
     stop_words = set(nl.corpus.stopwords.words('english'))
     filtered_words = []
@@ -99,9 +103,11 @@ def remove_stop_words(w_token):
             filtered_words.append(tmp_word)
     return filtered_words
 
+
 def process_sentence(s):
     w_token = nl.tokenize.word_tokenize(s)
-    punctuations = [',','?','.',']','[','}','{','(',')','!','?',':',';','"','\'']
+    punctuations = [',', '?', '.', ']',
+                    '[', '}', '{', '(', ')', '!', '?', ':', ';', '"', '\'']
     t2 = []
     for w in w_token:
         if w not in punctuations:
@@ -114,38 +120,39 @@ positive_data_array = []
 
 # positive review prcocessing
 for p_review in positive:
-    positive_data_array.append([process_sentence(p_review),'positive'])
+    positive_data_array.append([process_sentence(p_review), 'positive'])
 
 negative_data_array = []
-i= 0
+i = 0
 
-#negative review processing
+# negative review processing
 for n_review in negative:
-        processed = [process_sentence(n_review),'negative']
-        negative_data_array.append(processed)
+    processed = [process_sentence(n_review), 'negative']
+    negative_data_array.append(processed)
 
-        if(i<5):
-            print('review before processing->')            # demo purpose code to see the affect
-            print(n_review)
-            print('review after processing->')
-            print(processed)
-            print('-------------------------')
-            i+=1
+    if(i < 5):
+        # demo purpose code to see the affect
+        print('review before processing->')
+        print(n_review)
+        print('review after processing->')
+        print(processed)
+        print('-------------------------')
+        i += 1
 
-#partition into training and test set
+# partition into training and test set
 
 # shuffling
 random.shuffle(positive_data_array)
 random.shuffle(negative_data_array)
 
-#partitioning
+# partitioning
 training_set = positive_data_array[:3000]+negative_data_array[:3000]
-test_set =positive_data_array[3000:]+negative_data_array[3000:]
+test_set = positive_data_array[3000:]+negative_data_array[3000:]
 
-#build classifier and test
+# build classifier and test
 classifier = nl.NaiveBayesClassifier.train(training_set)
 
-print('Accuracy: ',nl.classify.util.accuracy(classifier,test_set))
+print('Accuracy: ', nl.classify.util.accuracy(classifier, test_set))
 print('\n')
 
 TP = 0
@@ -153,40 +160,41 @@ TN = 0
 FP = 0
 FN = 0
 for itr in range(len(test_set)):
-    out=classifier.classify(test_set[itr][0])
-    if out=='positive' and test_set[itr][1]=='positive':
+    out = classifier.classify(test_set[itr][0])
+    if out == 'positive' and test_set[itr][1] == 'positive':
         TP = TP + 1
-    if out=='negative' and test_set[itr][1]=='negative':
+    if out == 'negative' and test_set[itr][1] == 'negative':
         TN = TN + 1
-    if out=='positive' and test_set[itr][1]=='negative':
+    if out == 'positive' and test_set[itr][1] == 'negative':
         FP = FP + 1
-    if out=='negative' and test_set[itr][1]=='positive':
+    if out == 'negative' and test_set[itr][1] == 'positive':
         FN = FN + 1
 
-print('True Positive:',TP,'\t False Positive:',FP)
-print('False Negative:',FN,'\t True Negative:',TN)
+print('True Positive:', TP, '\t False Positive:', FP)
+print('False Negative:', FN, '\t True Negative:', TN)
 
 print('\n')
 print('Confusion Matrix:\n')
 print('_________________________________________________')
 print('\t\t\tActual Output\n')
 print('_________________________________________________')
-print('\t\t',TP,'\t\t',FP)
+print('\t\t', TP, '\t\t', FP)
 print('Test Output -------------------------------------')
-print('\t\t',FN,'\t\t',TN)
+print('\t\t', FN, '\t\t', TN)
 print('_________________________________________________')
 print('\n')
-print('Precision:[TP/(TP+FP)]\t',TP/(TP+FP))
-print('Recall:[TP/(TP+FN)]\t',TP/(TP+FN))
-print('Accuaracy:[(TP+TN)/(TP+TN+FP+FN)]\t',(TP+TN)/(TP+TN+FP+FN))
+print('Precision:[TP/(TP+FP)]\t', TP/(TP+FP))
+print('Recall:[TP/(TP+FN)]\t', TP/(TP+FN))
+print('Accuaracy:[(TP+TN)/(TP+TN+FP+FN)]\t', (TP+TN)/(TP+TN+FP+FN))
 
 # classifiy new test instance
-print(classifier.classify(process_sentence('very bad movie. I have wasted my money.')))
-print(classifier.classify(process_sentence('One of the best movie, I have ever seen.')))
-print(classifier.classify(process_sentence('a real movie , about real people , that gives us a rare glimpse into a culture most of us don\'t know .')))
+print(classifier.classify(process_sentence(
+    'very bad movie. I have wasted my money.')))
+print(classifier.classify(process_sentence(
+    'One of the best movie, I have ever seen.')))
+print(classifier.classify(process_sentence(
+    'a real movie , about real people , that gives us a rare glimpse into a culture most of us don\'t know .')))
 
-from nltk.corpus import wordnet as wn
-import nltk
 
 # Then, we're going to use the term "program" to find synsets like so:
 syns = wn.synsets("run")

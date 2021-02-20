@@ -13,6 +13,12 @@
 # 1.3 Save the data in csv file as follows: [2.5]
 # s.no. | reviewer name | rating | date | review title | review text | sentiment [positive or negative]
 
+import ast
+import random
+import numpy as np
+import matplotlib.pyplot as plt
+import nltk as nl
+import pickle
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import pandas as pd
@@ -35,13 +41,13 @@ soup.title.text
 
 name, rating, title, text, date = [], [], [], [], []
 
-namesdates = soup.find_all('div', {'class':'display-name-date'})
-ratings = soup.find_all('span', {'class':'rating-other-user-rating'})
-titles = soup.find_all('a', {'class':'title'})
-texts = soup.find_all('div', {'class':'text show-more__control'})
+namesdates = soup.find_all('div', {'class': 'display-name-date'})
+ratings = soup.find_all('span', {'class': 'rating-other-user-rating'})
+titles = soup.find_all('a', {'class': 'title'})
+texts = soup.find_all('div', {'class': 'text show-more__control'})
 
-i=0
-nd=[]
+i = 0
+nd = []
 for temp in namesdates:
     nd.append(temp.get_text().strip('\n'))
 for n in nd:
@@ -53,17 +59,17 @@ for temp in texts:
 for temp in ratings:
     rating.append(temp.find('svg'))
 
-df = pd.DataFrame(columns=['name','Rating','Title','Text','Date'])
+df = pd.DataFrame(columns=['name', 'Rating', 'Title', 'Text', 'Date'])
 trs = mtable.find_all('tr')
-i=0
+i = 0
 for n in name:
-        df = df.append({'Name':n,
-                        'Rating':rating[i],
-                        'Title':0,
-                        'Text':text[i],
-                        'Date':date[i]}, ignore_index=True)
-        i+=1
-        
+    df = df.append({'Name': n,
+                    'Rating': rating[i],
+                    'Title': 0,
+                    'Text': text[i],
+                    'Date': date[i]}, ignore_index=True)
+    i += 1
+
 df
 
 # In[328]:
@@ -75,23 +81,24 @@ df
 # f.close()
 
 # To load pretrained Model
-import pickle
 f = open('my_classifier.pickle', 'rb')
 classifier = pickle.load(f)
 f.close()
 
 # In[ ]:
 
-import nltk as nl
+
 def process_sentence(s):
     w_token = nl.tokenize.word_tokenize(s)
-    punctuations = [',','?','.',']','[','}','{','(',')','!','?',':',';','"','\'']
+    punctuations = [',', '?', '.', ']',
+                    '[', '}', '{', '(', ')', '!', '?', ':', ';', '"', '\'']
     t2 = []
     for w in w_token:
         if w not in punctuations:
             t2.append(w)
     t3 = remove_stop_words(t2)
     return {word: 1 for word in t3}
+
 
 for text in texts:
     print(classifier.classify(process_sentence(text)))
@@ -113,34 +120,34 @@ soup.title.text
 # In[110]:
 
 # wikitable sortable jquery-tablesorter
-table = soup.find_all('table',{'class':'wikitable sortable'})
+table = soup.find_all('table', {'class': 'wikitable sortable'})
 mtable = table[1]
 
-df = pd.DataFrame(columns=['Language','First L','First L %','Second L','Third L', 'Total', 'Total %'])
+df = pd.DataFrame(columns=['Language', 'First L',
+                           'First L %', 'Second L', 'Third L', 'Total', 'Total %'])
 
 trs = mtable.find_all('tr')
 for tr in trs:
     tds = tr.find_all('td')
-    if len(tds)>0:
-        df = df.append({'Language':tds[0].text.rstrip('\n'),
-                        'First L':tds[1].text.rstrip('\n'), 'First L %':tds[2].text.rstrip('\n'),
-                        'Second L':tds[3].text.rstrip('\n'),
-                        'Third L':tds[4].text.rstrip('\n'),
-                        'Total':tds[5].text.rstrip('\n'), 'Total %':tds[6].text.rstrip('\n')},ignore_index=True)
+    if len(tds) > 0:
+        df = df.append({'Language': tds[0].text.rstrip('\n'),
+                        'First L': tds[1].text.rstrip('\n'), 'First L %': tds[2].text.rstrip('\n'),
+                        'Second L': tds[3].text.rstrip('\n'),
+                        'Third L': tds[4].text.rstrip('\n'),
+                        'Total': tds[5].text.rstrip('\n'), 'Total %': tds[6].text.rstrip('\n')}, ignore_index=True)
 df
 
 # In[111]:
 
-import matplotlib.pyplot as plt
-import numpy as np
-import random
 
 # In[116]:
 
+
 def random_color():
-    rgbl=[255,0,0]
+    rgbl = [255, 0, 0]
     random.shuffle(rgbl)
     return tuple(rgbl)
+
 
 # Data to plot
 labels = df['Language'].values
@@ -148,8 +155,8 @@ sizes = df['Total %'].values
 
 # Plot
 plt.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=140)
-plt.legend(bbox_to_anchor=(0.85,1.025), loc="upper left")
- 
+plt.legend(bbox_to_anchor=(0.85, 1.025), loc="upper left")
+
 # plt.axis('equal')
 plt.show()
 
@@ -161,7 +168,7 @@ plt.show()
 # 3.1 takes user input: a) how much money he/she wants to invest. b) # of shares he/she wants to have.
 
 # 3.2 extract top 3 choices from the folowing link:(select the shares with high % gain)
-# [i) total cost should not go above the investment of user. 
+# [i) total cost should not go above the investment of user.
 # ii) # of shares must be same as user wants]
 # https://money.rediff.com/gainers/bse
 
@@ -169,7 +176,6 @@ plt.show()
 
 # In[169]:
 
-import ast
 imoney = int(input('Enter the amount of money you want to Invest : '))
 ishare = int(input('Enter the number of shares you want : '))
 user_close = imoney/ishare
@@ -184,26 +190,28 @@ soup.title.text
 
 # In[204]:
 
-table = soup.find('table',{'class':'dataTable'})
+table = soup.find('table', {'class': 'dataTable'})
 # print(table)
 
-df = pd.DataFrame(columns=['Company','Group','Prev Close', 'Current Close', 'Change'])
+df = pd.DataFrame(columns=['Company', 'Group',
+                           'Prev Close', 'Current Close', 'Change'])
 
 trs = table.find_all('tr')
 for tr in trs:
     tds = tr.find_all('td')
-    if len(tds)>0:
-        df = df.append({'Company':tds[0].text.strip('\n\t'),
-                        'Group':tds[1].text,
-                        'Prev Close':float(tds[2].text.replace(',','')),
-                        'Current Close':float(tds[3].text.replace(',','')),
-                        'Change':tds[4].text},ignore_index=True)
+    if len(tds) > 0:
+        df = df.append({'Company': tds[0].text.strip('\n\t'),
+                        'Group': tds[1].text,
+                        'Prev Close': float(tds[2].text.replace(',', '')),
+                        'Current Close': float(tds[3].text.replace(',', '')),
+                        'Change': tds[4].text}, ignore_index=True)
 
 df.head()
 
 # In[268]:
 
-udf = pd.DataFrame(columns=['Company','Group','Prev Close', 'Current Close', 'Change'])
+udf = pd.DataFrame(columns=['Company', 'Group',
+                            'Prev Close', 'Current Close', 'Change'])
 
 # Sorting
 # udf = df.sort_values(['Current Close', 'Change'], ascending=[1, 0])
@@ -211,25 +219,27 @@ udf = pd.DataFrame(columns=['Company','Group','Prev Close', 'Current Close', 'Ch
 
 # Filtering
 udf = df[(df['Current Close'] <= user_close)]
-udf = udf.sort_values(['Change','Current Close'], ascending=[False, False])
+udf = udf.sort_values(['Change', 'Current Close'], ascending=[False, False])
 
-i=0
+i = 0
 myrows = []
 for row in udf.iterrows():
-    if(row[1]['Current Close']<user_close):
+    if(row[1]['Current Close'] < user_close):
         i += 1
         myrows.append(row)
     if i is 3:
         break
-        
+
 udf.head()
 
 # In[276]:
 
-print("{:^10} {:^25} {:^15} {:^15} {:^10} {:^10}".format("Choice","Company","Previous Close","Current Close","Change","Total"))
+print("{:^10} {:^25} {:^15} {:^15} {:^10} {:^10}".format(
+    "Choice", "Company", "Previous Close", "Current Close", "Change", "Total"))
 print("-"*90)
-i=1
+i = 1
 for row in myrows:
-    print("{:^10} {:^25} {:^15} {:^15} {:>10} {:>10}".format(i, row[1]['Company'],row[1]['Prev Close'],row[1]['Current Close'],row[1]['Change'], user_close*row[1]['Current Close']), end=' ')
+    print("{:^10} {:^25} {:^15} {:^15} {:>10} {:>10}".format(
+        i, row[1]['Company'], row[1]['Prev Close'], row[1]['Current Close'], row[1]['Change'], user_close*row[1]['Current Close']), end=' ')
     i += 1
     print()

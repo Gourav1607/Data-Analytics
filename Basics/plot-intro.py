@@ -20,21 +20,21 @@ t = np.arange(0., 5., 0.2)
 plt.plot(t, t, 'r--', t, t**2, 'bs', t, t**3, 'g^')
 plt.show()
 
-import numpy as np
-data = [1,2,15,3,6,17,8,16,8,3,10,12,16,12,9]
+data = [1, 2, 15, 3, 6, 17, 8, 16, 8, 3, 10, 12, 16, 12, 9]
 nparray = np.array(data)
 
 print(nparray.data)
-print("Mean--",np.mean(nparray))
-print("Median--",np.median(nparray))
-print("Standard Div.  --",np.std(nparray))
-print("Max--",np.max(nparray))
-print("Min--",np.min(nparray))
+print("Mean--", np.mean(nparray))
+print("Median--", np.median(nparray))
+print("Standard Div.  --", np.std(nparray))
+print("Max--", np.max(nparray))
+print("Min--", np.min(nparray))
 
 plt.boxplot(nparray.data)
 plt.show()
 
-year = ['2001','2002','2003','2004','2005','2006','2007','2008','2009','2010']
+year = ['2001', '2002', '2003', '2004', '2005',
+        '2006', '2007', '2008', '2009', '2010']
 runs = [
     941,
     854,
@@ -54,7 +54,7 @@ plt.bar(index, runs)
 plt.xlabel('Year', fontsize=20)
 plt.ylabel('Runs scored', fontsize=20)
 plt.xticks(index, year, fontsize=10, rotation=90)
-plt.title('Number of runs scored by XYZ from 2001 to 2010',fontsize=30)
+plt.title('Number of runs scored by XYZ from 2001 to 2010', fontsize=30)
 plt.show()
 
 N = 50
@@ -66,10 +66,10 @@ area = np.pi * (15 * np.random.rand(N))**2  # 0 to 15 point radii
 plt.scatter(x, y, s=area, c=colors, alpha=0.5)
 plt.show()
 
-labels = 'USA','India','Japan','China'
+labels = 'USA', 'India', 'Japan', 'China'
 sizes = [30, 15, 45, 10]
 
 fig1, ax1 = plt.subplots()
-ax1.pie(sizes,labels=labels)
+ax1.pie(sizes, labels=labels)
 
 plt.show()

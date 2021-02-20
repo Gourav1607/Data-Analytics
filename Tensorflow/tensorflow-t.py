@@ -17,22 +17,20 @@
 # In[3]:
 
 from __future__ import print_function
+import warnings
+import matplotlib.pyplot as plt
+from skimage.io import imread
+from skimage import io
+import tensorflow as tf
+import pandas as pd
+import numpy as np
+import csv
+import cv2
+import os
 
 print('Importing Libraries', end='')
 
-import os
-import cv2
-import csv
-import numpy as np
-import pandas as pd
-import tensorflow as tf
 
-from skimage import io
-from skimage.io import imread
-
-import matplotlib.pyplot as plt
-
-import warnings
 warnings.filterwarnings("ignore")
 
 print(' - Done')
@@ -83,10 +81,12 @@ print('Test Folders  - ', len(test_folders))
 
 # In[25]:
 
+
 def read_images(folders, path):
     images = []
     labels = []
-    columns = ['Filename', 'Width', 'Height', 'X1', 'Y1', 'X2', 'Y2', 'ClassID']
+    columns = ['Filename', 'Width', 'Height',
+               'X1', 'Y1', 'X2', 'Y2', 'ClassID']
 
     i = 0
     for folder in folders:
@@ -95,27 +95,31 @@ def read_images(folders, path):
 
         # Read CSV
         for image in os.listdir(path + folder):
-            if image.endswith('.csv'):   
-                tempdf = pd.read_csv(path + folder + '/' + image, delimiter=';')
-                tempdf.columns = ['Filename', 'Width', 'Height', 'X1', 'Y1', 'X2', 'Y2', 'ClassID']
+            if image.endswith('.csv'):
+                tempdf = pd.read_csv(
+                    path + folder + '/' + image, delimiter=';')
+                tempdf.columns = ['Filename', 'Width',
+                                  'Height', 'X1', 'Y1', 'X2', 'Y2', 'ClassID']
                 break
-        
+
         # Read Images
         for image in os.listdir(path + folder):
             if not image.endswith('.csv'):
                 tempdf2 = tempdf.loc[tempdf['Filename'] == str(image)]
                 # Use these details to crop, resize and label
                 img = cv2.imread(path + folder + '/' + image)
-                crop_img = img[tempdf2.iloc[0]['Y1']:tempdf2.iloc[0]['Y2'], tempdf2.iloc[0]['X1']:tempdf2.iloc[0]['X2']]
+                crop_img = img[tempdf2.iloc[0]['Y1']:tempdf2.iloc[0]
+                               ['Y2'], tempdf2.iloc[0]['X1']:tempdf2.iloc[0]['X2']]
                 resized = cv2.resize(crop_img, (28, 28))
                 gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
                 images.append(np.array(gray)/255.0)
                 labels.append(tempdf2.iloc[0]['ClassID'])
         i += 1
-        
+
     return np.array(images), np.array(labels)
 
 # In[26]:
+
 
 print('Reading Train Images')
 train_images, train_labels = read_images(train_folders, train_path)
@@ -155,7 +159,7 @@ n_input = 784
 # Hidden Layers
 n_hidden_1, n_hidden_2, n_hidden_3 = 256, 128, 256
 # Output Layer
-n_classes = len(train_folders) # 62
+n_classes = len(train_folders)  # 62
 # Parameters
 learning_rate = 0.002
 
@@ -195,16 +199,20 @@ y = tf.placeholder(tf.float32, [None, n_classes], name='labels')
 initializer = tf.contrib.layers.xavier_initializer()
 
 # Hidden Layers
-layer_1 = tf.layers.dense(x, n_hidden_1, activation=tf.nn.sigmoid, kernel_initializer=initializer)
-layer_2 = tf.layers.dense(layer_1, n_hidden_2, activation=tf.nn.sigmoid, kernel_initializer=initializer)
-layer_3 = tf.layers.dense(layer_2, n_hidden_3, activation=tf.nn.sigmoid, kernel_initializer=initializer)
+layer_1 = tf.layers.dense(
+    x, n_hidden_1, activation=tf.nn.sigmoid, kernel_initializer=initializer)
+layer_2 = tf.layers.dense(
+    layer_1, n_hidden_2, activation=tf.nn.sigmoid, kernel_initializer=initializer)
+layer_3 = tf.layers.dense(
+    layer_2, n_hidden_3, activation=tf.nn.sigmoid, kernel_initializer=initializer)
 layer_out = tf.layers.dense(layer_3, n_classes, activation=tf.nn.softmax)
 
 # Minimize Cost (Error)
-cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=layer_out, labels=y))
+cost = tf.reduce_mean(
+    tf.nn.sigmoid_cross_entropy_with_logits(logits=layer_out, labels=y))
 
 # Optimizer - Adam
-optimizer = tf.train.AdamOptimizer(learning_rate = learning_rate).minimize(cost)
+optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 # optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
 
 predicted = tf.nn.sigmoid(layer_out)
@@ -216,21 +224,25 @@ print(' - Done')
 # In[116]:
 
 # Create Mini Batches to feed the Network
+
+
 def nextMiniBatch(images, labels, index, batch_size):
     imgs = []
-    for img in images[index*batch_size : (index+1)*batch_size]:
+    for img in images[index*batch_size: (index+1)*batch_size]:
         temp = np.reshape(img, (784))
         imgs.append(temp)
-        
+
     labs = []
-    for label in labels[index*batch_size : (index+1)*batch_size]:
+    for label in labels[index*batch_size: (index+1)*batch_size]:
         temp = np.zeros(62)
         temp[label] = 1
         labs.append(temp)
-        
+
     return np.array(imgs), np.array(labs)
 
 # If either Cost or Accuracy is not Improving, Then Shut Down the model
+
+
 def checkPatience(cost, accuracy, patience):
     if len(cost) < patience:
         return False
@@ -241,11 +253,12 @@ def checkPatience(cost, accuracy, patience):
 
 # In[117]:
 
+
 # Training Parameters
 training_epochs = 1000
 batch_size = 256
-display_step = 1 # Print cost and accuracy after every this number of epochs
-patience = 5 # Consistent same results for this number of epochs will stop training
+display_step = 1  # Print cost and accuracy after every this number of epochs
+patience = 5  # Consistent same results for this number of epochs will stop training
 
 # In[118]:
 
@@ -266,41 +279,45 @@ with tf.Session() as sess:
         avg_cost, avg_acc = 0., 0.
         total_batch = len(train_images)//batch_size
         print("Epoch :", '%04d' % (epoch+1), end=' [')
-        temp_acc= []
+        temp_acc = []
         # For each Batch
         for i in range(total_batch):
             print('#', end='')
-            batch_xs, batch_ys = nextMiniBatch(train_images, train_labels, i, batch_size)
+            batch_xs, batch_ys = nextMiniBatch(
+                train_images, train_labels, i, batch_size)
             # Run optimization op (backprop) and cost op (to get loss value)
-            loss, _, acc = sess.run([cost, optimizer, accuracy], feed_dict={x: batch_xs, y: batch_ys})
+            loss, _, acc = sess.run([cost, optimizer, accuracy], feed_dict={
+                                    x: batch_xs, y: batch_ys})
             # Compute average loss
             avg_cost += loss / total_batch
             # Compute average accuracy
             avg_acc += acc / total_batch
             temp_acc.append(acc)
-            
+
         print(']', end='')
-        
+
         # Display logs per epoch step
         if (epoch+1) % display_step == 0:
-            print(" Cost :", "{:.8f}".format(avg_cost), "| Acc :", "{:.8f}".format(avg_acc))
+            print(" Cost :", "{:.8f}".format(avg_cost),
+                  "| Acc :", "{:.8f}".format(avg_acc))
 #         print(temp_acc)
         epoch_list.append(epoch + 1)
         cost_list.append(avg_cost)
         acc_list.append(avg_acc)
-        
+
         if checkPatience(cost_list, acc_list, patience) is True:
             print('Accuracy and Cost not Improving - Saving Model')
             break
 
     print()
     print('Testing Model - ')
-    
+
     # Test model
     pred_y = tf.equal(tf.argmax(layer_out, 1), tf.argmax(y, 1))
     # Calculate accuracy
     accuracy = tf.reduce_mean(tf.cast(pred_y, tf.float32))
-    test_x, test_y = nextMiniBatch(test_images, test_labels, 0, len(test_images))
+    test_x, test_y = nextMiniBatch(
+        test_images, test_labels, 0, len(test_images))
     print("Test Accuracy :", accuracy.eval({x: test_x, y: test_y}))
 
 # In[119]:
@@ -327,9 +344,9 @@ plt.show()
 
 # Show onw figure for each traffic sign
 plt.figure(figsize=(25, 12))
-plt.subplots_adjust(hspace = .1, wspace=.1)
+plt.subplots_adjust(hspace=.1, wspace=.1)
 for i in range(0, n_classes):
-    index = np.where(train_labels==i)[0][0]
+    index = np.where(train_labels == i)[0][0]
     image = train_images[index]
     plt.subplot(7, 10, i + 1), plt.imshow(image)
     plt.xticks([]), plt.yticks([])

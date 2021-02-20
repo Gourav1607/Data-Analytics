@@ -25,29 +25,27 @@
 # In[4]:
 
 from __future__ import print_function
+import warnings
+import matplotlib.pyplot as plt
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
+from sklearn import linear_model
+from sklearn import datasets
+import numpy as np
+import pandas as pd
+import math
+import random
+import csv
 
 print('Importing Libraries', end='')
 
-import csv
-import random
-import math
-import pandas as pd
-import numpy as np
 
-from sklearn import datasets
-from sklearn import linear_model
-from sklearn import preprocessing
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report
-from sklearn.naive_bayes import GaussianNB
-from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
-from sklearn.neural_network import MLPClassifier
-
-import matplotlib.pyplot as plt
-
-import warnings
 warnings.filterwarnings("ignore")
 
 print(' - Done')
@@ -62,7 +60,8 @@ titanic.head()
 # In[6]:
 
 print('Dropping Columns', end='')
-titanic = titanic.drop(columns=['PassengerId','Name','Ticket','Cabin','Embarked','Parch'])
+titanic = titanic.drop(
+    columns=['PassengerId', 'Name', 'Ticket', 'Cabin', 'Embarked', 'Parch'])
 print(' - Done')
 titanic.head(10)
 
@@ -91,7 +90,8 @@ for i in range(len(tit)):
 print(' - Done')
 
 print('Converting back to DataFrame', end='')
-titanic = pd.DataFrame(data=tit, columns=['Survived', 'Pclass', 'Sex', 'Age', 'SibSp', 'Fare'])
+titanic = pd.DataFrame(
+    data=tit, columns=['Survived', 'Pclass', 'Sex', 'Age', 'SibSp', 'Fare'])
 print(' - Done')
 titanic.head(10)
 
@@ -123,7 +123,7 @@ print()
 print('Classification Report')
 print(classification_report(test_y, pred_y))
 print()
-print('Accuracy Score - ', accuracy_score(test_y, pred_y, normalize = True)*100)
+print('Accuracy Score - ', accuracy_score(test_y, pred_y, normalize=True)*100)
 
 # In[12]:
 
@@ -152,14 +152,15 @@ wine.head(10)
 print('Generated EigenValues and EigenVectors, Sorted', end='')
 
 # Partitioning Dataset to Data:Class
-X = wine.iloc[:,1:14]
-Y = wine.iloc[:,0]
+X = wine.iloc[:, 1:14]
+Y = wine.iloc[:, 0]
 
 # Generating Covariance, EigenValues, EigenVectors
-X_std = StandardScaler().fit_transform(X) 
+X_std = StandardScaler().fit_transform(X)
 cov_mat = np.cov(X_std.T)
 eig_vals, eig_vecs = np.linalg.eig(cov_mat)
-eig_pairs = [(np.abs(eig_vals[i]), eig_vecs[:,i]) for i in range(len(eig_vals))]
+eig_pairs = [(np.abs(eig_vals[i]), eig_vecs[:, i])
+             for i in range(len(eig_vals))]
 
 # Sorting EigenValues and EigenVectors
 eig_pairs.sort()
@@ -207,16 +208,16 @@ f1score_svm, precision_svm, recall_svm = [], [], []
 f1score_nn, precision_nn, recall_nn = [], [], []
 
 print('Performing Model Training and Testing - ', end='')
-for i in range(13):    
+for i in range(13):
     print(i, end=' ')
     # Performing PCA
-    values = values + (eig_pairs[i][1].reshape(13,1),)
+    values = values + (eig_pairs[i][1].reshape(13, 1),)
     matrix_w = np.hstack(values)
     X_pca = X_std.dot(matrix_w)
 
     # Partitioning to Train:Test
-    X_train, X_test, y_train, y_test = train_test_split(X_pca, Y, test_size = .3)
-    
+    X_train, X_test, y_train, y_test = train_test_split(X_pca, Y, test_size=.3)
+
     if 1 in clf:
         # Apply Gaussian Naive Bayes
         gnb = GaussianNB()
@@ -225,7 +226,8 @@ for i in range(13):
         y_pred_nb = gnb.predict(X_test)
         # Saving Scores
         f1score_nb.append(f1_score(y_test, y_pred_nb, average='macro'))
-        precision_nb.append(precision_score(y_test, y_pred_nb, average='weighted'))
+        precision_nb.append(precision_score(
+            y_test, y_pred_nb, average='weighted'))
         recall_nb.append(recall_score(y_test, y_pred_nb, average='macro'))
 
     if 2 in clf:
@@ -236,29 +238,33 @@ for i in range(13):
         y_pred_lr = LogReg.predict(X_test)
         # Saving Scores
         f1score_lr.append(f1_score(y_test, y_pred_lr, average='macro'))
-        precision_lr.append(precision_score(y_test, y_pred_lr, average='weighted'))
+        precision_lr.append(precision_score(
+            y_test, y_pred_lr, average='weighted'))
         recall_lr.append(recall_score(y_test, y_pred_lr, average='macro'))
 
     if 3 in clf:
         # Apply SVM
         SupportVM = SVC()
-        SupportVM.fit(X_train, y_train) 
+        SupportVM.fit(X_train, y_train)
         # Test
         y_pred_svm = SupportVM.predict(X_test)
         # Saving Scores
         f1score_svm.append(f1_score(y_test, y_pred_svm, average='macro'))
-        precision_svm.append(precision_score(y_test, y_pred_svm, average='weighted'))
+        precision_svm.append(precision_score(
+            y_test, y_pred_svm, average='weighted'))
         recall_svm.append(recall_score(y_test, y_pred_svm, average='macro'))
-    
+
     if 4 in clf:
         # Apply Neural Network
-        nn = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(20, 12), random_state=1)
+        nn = MLPClassifier(solver='lbfgs', alpha=1e-5,
+                           hidden_layer_sizes=(20, 12), random_state=1)
         nn.fit(X_train, y_train)
         # Test
         y_pred_nn = nn.predict(X_test)
         # Saving Scores
         f1score_nn.append(f1_score(y_test, y_pred_nn, average='macro'))
-        precision_nn.append(precision_score(y_test, y_pred_nn, average='weighted'))
+        precision_nn.append(precision_score(
+            y_test, y_pred_nn, average='weighted'))
         recall_nn.append(recall_score(y_test, y_pred_nn, average='macro'))
 
 print(' - Done')
@@ -266,11 +272,11 @@ print(' - Done')
 # In[17]:
 # For Neural Network, different Hidden Layer Config changes the behaviour of the network
 # 2.4: Draw the line graph
-    # 2.4.1 # features vs Precision
-    # 2.4.2 # features vs Recall
+# 2.4.1 # features vs Precision
+# 2.4.2 # features vs Recall
 
-index = [x for x in range(1,14)]
-fig, axes = plt.subplots(2, 2, figsize=(15,15))
+index = [x for x in range(1, 14)]
+fig, axes = plt.subplots(2, 2, figsize=(15, 15))
 
 if 1 in clf:
     axes[0, 0].plot(index, f1score_nb, label='Naive B')

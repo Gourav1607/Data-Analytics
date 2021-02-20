@@ -9,6 +9,8 @@
 # os.environ['HTTP_PROXY'] = "http://username:pass@ip:port"
 # os.environ['HTTPS_PROXY'] = "https://username:pass@ip:port"
 
+import pandas as pd
+from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
 raw_html = open('test1.html').read()
@@ -17,9 +19,8 @@ html = BeautifulSoup(raw_html, 'html.parser')
 # print(html)
 
 for p in html.find_all('p'):
-    print(p['id'],p['class'][0],p.text)
+    print(p['id'], p['class'][0], p.text)
 
-from urllib.request import urlopen
 url = "https://en.wikipedia.org/wiki/Indian_Institutes_of_Technology"
 html = urlopen(url)
 print(html)
@@ -37,7 +38,7 @@ all_links = soup.find_all("a")
 for link in all_links:
     print(link.get("href"))
 
-table = soup.find('table',{'class':'wikitable sortable'})
+table = soup.find('table', {'class': 'wikitable sortable'})
 print(table)
 
 links = table.find_all('a')
@@ -45,13 +46,13 @@ links = table.find_all('a')
 for link in links:
     print(link.get('title'))
 
-import pandas as pd
-df = pd.DataFrame(columns=['S. No','Name','Location'])
+df = pd.DataFrame(columns=['S. No', 'Name', 'Location'])
 
 trs = table.find_all('tr')
 for tr in trs:
     tds = tr.find_all('td')
-    if len(tds)>0:
-        df = df.append({'S. No':tds[0].text,'Name':tds[1].text,'Location':tds[2].text},ignore_index=True)
+    if len(tds) > 0:
+        df = df.append({'S. No': tds[0].text, 'Name': tds[1].text,
+                        'Location': tds[2].text}, ignore_index=True)
 
 print(df)

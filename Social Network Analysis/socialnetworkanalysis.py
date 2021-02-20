@@ -18,15 +18,14 @@
 # 2 Visit the site: https://snap.stanford.edu/data. Select data of your choice.
 #   Calculate all the parameters aplicable on that graph.
 
+import matplotlib.pyplot as plt
+import networkx as nx
+from random import shuffle
+import pandas as pd
+import numpy as np
+import csv
 print('Importing Libraries', end='')
 
-import csv
-import numpy as np
-import pandas as pd
-from random import shuffle
-
-import networkx as nx
-import matplotlib.pyplot as plt
 
 print(' - Done')
 
@@ -41,34 +40,34 @@ ngraphs = 100
 
 nodes = []
 for x in range(1, ngraphs+1):
-    nodes.append((20*x)%2020)
-    
-# If need nodes to be random for each graph, else they are sequential 20, 40, ...
-# shuffle(nodes) 
+    nodes.append((20*x) % 2020)
 
-print(ngraphs,' Graphs with Number of Nodes : ')
+# If need nodes to be random for each graph, else they are sequential 20, 40, ...
+# shuffle(nodes)
+
+print(ngraphs, ' Graphs with Number of Nodes : ')
 print(nodes)
 
 print('\nGenerating and Calculating Graphs - ', end='')
-for i in range(0, ngraphs): # Number of Graphs
+for i in range(0, ngraphs):  # Number of Graphs
     print(i+1, end=' ')
     A = np.zeros([nodes[i], nodes[i]])
-    
+
     # Randomly Initialize each Graph's Matrix
     for j in range(0, nodes[i]):
         for k in range(0, nodes[i]):
             A[j, k] = np.round(np.random.random())
-    
+
     # Generate Graph from Matrix
     myGraph = nx.from_numpy_matrix(A)
-    
+
     # Calculate Values
     gcc_avg.append(nx.average_clustering(myGraph))
     gcc_trn.append(nx.transitivity(myGraph))
 
 print('\nGenerating and Calculating Graphs - Done')
 
-# UnComment to See all the values 
+# UnComment to See all the values
 # print()
 # print(gcc_avg)
 # print(gcc_trn)
